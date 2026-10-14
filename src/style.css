@@ -244,6 +244,29 @@ table.scores th {
   animation: rise 0.9s 0.3s ease both;
 }
 
+.t-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.4rem;
+  margin-top: 0.7rem;
+}
+.t-links a,
+.t-links button {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--brass);
+  background: none;
+  border: none;
+  padding: 0.2rem 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(200, 183, 138, 0.35);
+  text-underline-offset: 3px;
+}
+.t-links a:hover,
+.t-links button:hover { color: var(--gold); text-decoration-color: currentColor; }
+
 @keyframes rise {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: none; }
@@ -712,6 +735,22 @@ table.scores th {
 }
 .help-body p { margin-bottom: 0.6rem; }
 .help-body strong { font-family: var(--display); font-weight: 400; letter-spacing: 0.04em; }
+
+.about-story {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.9rem !important;
+  border-bottom: 1px solid rgba(84, 69, 44, 0.25);
+}
+.about-sig {
+  display: block;
+  text-align: right;
+  font-style: italic;
+  margin-top: 0.4rem;
+}
+.m-actions a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 
 #modal-scores table.scores { margin-bottom: 1rem; }
 

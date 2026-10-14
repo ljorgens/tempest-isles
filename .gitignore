@@ -29,3 +29,7 @@ yarn-error.log*
 
 # Original shareware + manual (local reference only — not ours to redistribute)
 /reference/
+
+# Research notes and reports (local only)
+/research_notes/
+/reports/

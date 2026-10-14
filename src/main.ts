@@ -5,6 +5,7 @@ import { Renderer } from './render';
 import { Ui } from './ui';
 import { AI_NAMES, CARD_HINT, CARD_LABEL, COLORS, DIFFICULTIES, Player, Settings } from './types';
 import { isMuted, setMuted } from './sfx';
+import { initAboutLinks, showAbout } from './about';
 import './style.css';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -142,6 +143,8 @@ $('#m-scores').addEventListener('click', () => {
   renderScores($('#modal-scores'));
   m.querySelector('#m-close')!.addEventListener('click', () => ($('#modal-scrim').hidden = true));
 });
+$('#m-about').addEventListener('click', showAbout);
+initAboutLinks();
 $('#m-help').addEventListener('click', () => {
   const m = $('#modal');
   $('#modal-scrim').hidden = false;

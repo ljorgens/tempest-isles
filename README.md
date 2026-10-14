@@ -5,6 +5,15 @@ Risk-style island-conquest game where earthquakes, floods, rebellions and
 wandering production centers answer to no admiral. All-new code, map, art and
 name — the rules follow the original's manual (see `RULES_SPEC.md`).
 
+**Free to play, free to fork.** I played Isle Wars Pro as a kid and rebuilt it
+so I (and anyone else who misses it) could play it again. Bug reports, rule
+corrections and pull requests are all welcome — open an
+[issue](https://github.com/ljorgens/tempest-isles/issues) or fork away.
+
+> Tempest Isles is an unofficial fan tribute. It is not affiliated with or
+> endorsed by Soleau Software; all credit for the original game's design goes
+> to William Soleau and Soleau Software.
+
 ## Play
 
 ```sh
@@ -67,3 +76,14 @@ Spots where the original manual is silent (marked `[UNVERIFIED]` in
   playwright-core` and a dev server running).
 - `reference/` (local only, git-ignored) — the original Isle Wars Pro shareware, manual and screenshot
   used to document the rules.
+
+## Contributing
+
+Fork the repo, make your change, and open a pull request. Before submitting,
+run `npm run build` (typecheck + bundle), `npm run validate` (map integrity) and
+`npm run sim -- 50` (headless AI games, catches hangs and rule violations).
+
+## License
+
+[MIT](LICENSE) — use, modify and share freely; just keep the copyright notice.
+
