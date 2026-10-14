@@ -1,0 +1,20 @@
+# Render Blueprint — deploys Tempest Isles as a FREE static site. The game is
+# entirely client-side (no server), so there is nothing to sleep or cold-start.
+#
+# One-time setup: render.com → New → Blueprint → pick this repo → Apply.
+# Every push to main then rebuilds and redeploys automatically.
+services:
+  - type: web
+    name: tempest-isles
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    headers:
+      # Vite fingerprints everything under /assets, so it can be cached forever.
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
