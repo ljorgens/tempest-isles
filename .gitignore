@@ -26,3 +26,6 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+
+# Original shareware + manual (local reference only — not ours to redistribute)
+/reference/

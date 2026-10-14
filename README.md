@@ -65,5 +65,5 @@ Spots where the original manual is silent (marked `[UNVERIFIED]` in
   (`npm run sim -- 200` runs 200 games per difficulty rank).
 - `scripts/playtest.mjs` — headless Chrome smoke test (needs `npm i --no-save
   playwright-core` and a dev server running).
-- `reference/` — the original Isle Wars Pro shareware, manual and screenshot
+- `reference/` (local only, git-ignored) — the original Isle Wars Pro shareware, manual and screenshot
   used to document the rules.
