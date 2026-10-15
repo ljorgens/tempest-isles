@@ -5,7 +5,7 @@ export const SOURCE_URL = 'https://github.com/ljorgens/tempest-isles';
 export const ISSUES_URL = `${SOURCE_URL}/issues/new`;
 // Tip-jar link: a Stripe Payment Link (customer chooses price, $5 suggested, $3 min, $100 max).
 // Empty hides the tip button everywhere. Always call it a "tip", never a "donation".
-export const TIP_URL = '';
+export const TIP_URL = 'https://buy.stripe.com/cNi00i8jMfUy4Hc4ky2kw00';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
