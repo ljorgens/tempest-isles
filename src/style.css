@@ -131,6 +131,10 @@ button { font-family: inherit; cursor: pointer; }
   font-size: 0.85rem;
   opacity: 0.8;
   margin-bottom: 1.4rem;
+  white-space: nowrap;
+}
+@media (max-width: 420px) {
+  .t-rule { letter-spacing: 0.05em; font-size: 0.75rem; }
 }
 
 #title-screen h1 {
