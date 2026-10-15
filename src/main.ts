@@ -7,6 +7,15 @@ import { AI_NAMES, CARD_HINT, CARD_LABEL, COLORS, DIFFICULTIES, Player, Settings
 import { isMuted, setMuted } from './sfx';
 import { initAboutLinks, showAbout } from './about';
 import { initMapView } from './mapview';
+// Fonts are self-hosted (no requests to Google); see public/privacy.html.
+import '@fontsource/im-fell-english-sc/400.css';
+import '@fontsource/im-fell-english/400.css';
+import '@fontsource/im-fell-english/400-italic.css';
+import '@fontsource/alegreya-sans/400.css';
+import '@fontsource/alegreya-sans/400-italic.css';
+import '@fontsource/alegreya-sans/500.css';
+import '@fontsource/alegreya-sans/700.css';
+import '@fontsource/alegreya-sans/800.css';
 import './style.css';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;

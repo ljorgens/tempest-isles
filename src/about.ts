@@ -32,6 +32,9 @@ export function showAbout() {
       <p><strong>Free &amp; open source.</strong> The game is free to play, and its code is MIT-licensed.
       Fork it, fix it, add the feature you always wanted. Found a bug, or remember a rule differently?
       Please let me know.</p>
+
+      <p><strong>Privacy.</strong> No accounts, ads or tracking. Your scores stay in your browser.
+      <a href="./privacy.html" target="_blank" rel="noopener">Read the privacy policy</a>.</p>
       ${
         TIP_URL
           ? `<p><strong>Tips.</strong> Tempest Isles will always be free. If it brought back good memories,
