@@ -6,6 +6,7 @@ import { Ui } from './ui';
 import { AI_NAMES, CARD_HINT, CARD_LABEL, COLORS, DIFFICULTIES, Player, Settings } from './types';
 import { isMuted, setMuted } from './sfx';
 import { initAboutLinks, showAbout } from './about';
+import { initMapView } from './mapview';
 import './style.css';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -13,6 +14,7 @@ const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as
 const world = buildWorld();
 const renderer = new Renderer(world);
 renderer.init($('#map') as unknown as SVGSVGElement);
+const mapView = initMapView($('#map') as unknown as SVGSVGElement, world.width, world.height);
 const ui = new Ui(renderer);
 
 let game: Game | null = null;
@@ -77,6 +79,8 @@ $('#setup').addEventListener('submit', async (e) => {
 
   $('#title-screen').hidden = true;
   $('#game-screen').hidden = false;
+  window.scrollTo(0, 0); // the title screen may have been scrolled to reach Set Sail
+  requestAnimationFrame(mapView.fit);
 
   game = new Game(world, settings, players, ui);
   ui.bind(game.st);
@@ -97,6 +101,7 @@ function backToPort() {
   ui.setPlayoutMode(false, () => {});
   $('#game-screen').hidden = true;
   $('#title-screen').hidden = false;
+  window.scrollTo(0, 0);
   renderScores($('#t-scores'));
 }
 
