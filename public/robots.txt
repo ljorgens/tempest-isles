@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tempest-isles-ugbl.onrender.com/sitemap.xml

@@ -1,8 +1,9 @@
 // Synthesized sound effects — WebAudio only, no assets.
 // The AudioContext is created lazily on first use (after a user gesture).
+import { storeGet, storeSet } from './storage';
 
 const MUTE_KEY = 'tempest-isles-muted';
-let muted = localStorage.getItem(MUTE_KEY) === '1';
+let muted = storeGet(MUTE_KEY) === '1';
 let ctx: AudioContext | null = null;
 
 export function isMuted() {
@@ -11,7 +12,7 @@ export function isMuted() {
 
 export function setMuted(m: boolean) {
   muted = m;
-  localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+  storeSet(MUTE_KEY, m ? '1' : '0');
 }
 
 function ac(): AudioContext | null {

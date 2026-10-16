@@ -8,9 +8,34 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a1f33'/><text x='50' y='72' font-size='64' text-anchor='middle'>⚓</text></svg>"
     />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#0a1f33" />
+    <meta
+      name="description"
+      content="A free browser tribute to the classic Isle Wars Pro. Conquer nine islands against three AI admirals, or friends on one screen, while earthquakes, floods and rebellion strike."
+    />
+    <link rel="canonical" href="https://tempest-isles-ugbl.onrender.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tempest Isles" />
+    <meta property="og:title" content="Tempest Isles — A War of Nine Islands" />
+    <meta
+      property="og:description"
+      content="A free browser tribute to the classic Isle Wars Pro. Conquer nine islands while earthquakes, floods and rebellion strike."
+    />
+    <meta property="og:url" content="https://tempest-isles-ugbl.onrender.com/" />
+    <meta property="og:image" content="https://tempest-isles-ugbl.onrender.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Tempest Isles title over a map of nine islands held by four colored fleets" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <noscript>
+      <p class="noscript">Tempest Isles needs JavaScript to run. Please enable it and reload the page.</p>
+    </noscript>
+    <main>
     <!-- ============ TITLE SCREEN ============ -->
     <div id="title-screen">
       <div class="t-waves" aria-hidden="true"></div>
@@ -118,7 +143,7 @@
         <footer id="bottombar">
           <div id="info-left" class="info-box"></div>
           <div id="center-stack">
-            <div id="prompt"></div>
+            <div id="prompt" aria-live="polite"></div>
             <div id="controls"></div>
             <div id="ticker"></div>
           </div>
@@ -138,14 +163,16 @@
 
       <section id="log-panel" aria-label="Game log">
         <div class="log-panel-head">Game Log</div>
-        <div id="log-stream"></div>
+        <div id="log-stream" tabindex="0"></div>
       </section>
     </div>
 
-    <div id="banner"></div>
+    </main>
+
+    <div id="banner" role="status" aria-live="polite"></div>
     <div id="card-reveal" hidden></div>
     <div id="modal-scrim" hidden>
-      <div id="modal"></div>
+      <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1"></div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

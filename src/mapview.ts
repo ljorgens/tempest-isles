@@ -114,6 +114,27 @@ export function initMapView(svg: SVGSVGElement, W: number, H: number) {
     true,
   );
 
+  // Trackpad pinch (reported as ctrl+wheel) or Ctrl/⌘+wheel zooms around the
+  // cursor; a plain wheel still scrolls the page down to the game log.
+  svg.addEventListener(
+    'wheel',
+    (e) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const r = svg.getBoundingClientRect();
+      const m = toMap(e.clientX, e.clientY);
+      // Normalize line/page wheel units to pixels and cap each step, so one
+      // mouse-wheel notch is a gentle zoom like a trackpad pinch.
+      const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
+      s = Math.min(Math.max(s * Math.exp(-Math.max(-40, Math.min(40, px)) * 0.01), 1), MAX_ZOOM);
+      const { w, h } = view();
+      cx = m.x - ((e.clientX - r.left) / r.width - 0.5) * w;
+      cy = m.y - ((e.clientY - r.top) / r.height - 0.5) * h;
+      apply();
+    },
+    { passive: false },
+  );
+
   // ----- zoom buttons -----
   const ctl = document.createElement('div');
   ctl.className = 'map-zoom';

@@ -1,5 +1,6 @@
 // About panel: why this remake exists, credit to the original, and where to
 // find the source, report bugs, or leave a tip.
+import { closeModal, openModal } from './modal';
 
 export const SOURCE_URL = 'https://github.com/ljorgens/tempest-isles';
 export const ISSUES_URL = `${SOURCE_URL}/issues/new`;
@@ -13,9 +14,8 @@ const ext = (href: string, label: string, kind = 'ghost') =>
   `<a class="btn ${kind}" href="${href}" target="_blank" rel="noopener">${label}</a>`;
 
 export function showAbout() {
-  const m = $('#modal');
-  $('#modal-scrim').hidden = false;
-  m.innerHTML = `<h2>About Tempest Isles</h2>
+  const m = openModal(
+    `<h2>About Tempest Isles</h2>
     <div class="help-body about-body">
       <p class="about-story">I spent hours playing <em>Isle Wars Pro</em> as a kid: pushing armies across
       nine little islands, cursing the earthquakes, and praying a flood wouldn't wipe out my best stack.
@@ -48,8 +48,10 @@ export function showAbout() {
       ${ext(ISSUES_URL, 'Report a Bug / Idea')}
       ${TIP_URL ? ext(TIP_URL, '☕ Tip the Developer', 'primary') : ''}
       <button class="btn ghost" id="m-close">Close</button>
-    </div>`;
-  m.querySelector('#m-close')!.addEventListener('click', () => ($('#modal-scrim').hidden = true));
+    </div>`,
+    { dismissable: true },
+  );
+  m.querySelector('#m-close')!.addEventListener('click', closeModal);
 }
 
 // Title-screen footer links.

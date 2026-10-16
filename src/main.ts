@@ -7,6 +7,7 @@ import { AI_NAMES, CARD_HINT, CARD_LABEL, COLORS, DIFFICULTIES, Player, Settings
 import { isMuted, setMuted } from './sfx';
 import { initAboutLinks, showAbout } from './about';
 import { initMapView } from './mapview';
+import { closeModal, confirmModal, initModal, isModalOpen, openModal } from './modal';
 // Fonts are self-hosted (no requests to Google); see public/privacy.html.
 import '@fontsource/im-fell-english-sc/400.css';
 import '@fontsource/im-fell-english/400.css';
@@ -28,13 +29,25 @@ const ui = new Ui(renderer);
 
 let game: Game | null = null;
 
+initModal();
+
 // ----- segmented controls -----
-document.querySelectorAll<HTMLElement>('.seg').forEach((seg) => {
+// Each group is labelled by the <label> before it; aria-pressed mirrors .on.
+document.querySelectorAll<HTMLElement>('.seg').forEach((seg, i) => {
+  const label = seg.previousElementSibling as HTMLElement | null;
+  if (label) {
+    label.id ||= `seg-label-${i}`;
+    seg.setAttribute('role', 'group');
+    seg.setAttribute('aria-labelledby', label.id);
+  }
+  const sync = () => seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.classList.contains('on'))));
+  sync();
   seg.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('button');
     if (!btn) return;
     seg.querySelectorAll('button').forEach((b) => b.classList.remove('on'));
     btn.classList.add('on');
+    sync();
   });
 });
 
@@ -95,6 +108,7 @@ $('#setup').addEventListener('submit', async (e) => {
   ui.bind(game.st);
 
   const end: GameEnd = await game.run();
+  game = null; // the result is settled: closing the tab no longer needs a warning
   const diffName = DIFFICULTIES[settings.difficulty];
   if (end.winner) {
     recordScore(diffName, end.winner.human);
@@ -114,33 +128,39 @@ function backToPort() {
   renderScores($('#t-scores'));
 }
 
+// Leaving mid-game (refresh, Back, closing the tab) asks first.
+let leaving = false;
+window.addEventListener('beforeunload', (e) => {
+  if (game && !leaving) e.preventDefault();
+});
+const reload = () => {
+  leaving = true;
+  location.reload();
+};
+
 // ----- menu bar -----
-$('#m-new').addEventListener('click', () => {
-  if (!game) return location.reload();
-  const human = game.players.find((p) => p.human)!;
-  const owned = game.countriesOf(human.id).length;
-  const warn =
-    owned < 10
-      ? 'You hold fewer than 10 countries — abandoning now will be logged as a LOSS. Start a new game anyway?'
-      : 'Abandon this war and start a new game?';
-  if (confirm(warn)) {
-    if (owned < 10) recordScore(DIFFICULTIES[game.settings.difficulty], false);
-    location.reload();
-  }
-});
-$('#m-quit').addEventListener('click', () => {
-  if (!game) return location.reload();
-  const human = game.players.find((p) => p.human)!;
-  const owned = game.countriesOf(human.id).length;
-  const warn =
-    owned < 10
-      ? 'You hold fewer than 10 countries — quitting now will be logged as a LOSS. Quit anyway?'
-      : 'Quit this game?';
-  if (confirm(warn)) {
-    if (owned < 10) recordScore(DIFFICULTIES[game.settings.difficulty], false);
-    location.reload();
-  }
-});
+// Abandoning a game while the humans hold fewer than 10 countries logs a loss.
+// In hotseat it is judged by the best-placed living human.
+async function abandon(question: string, action: string) {
+  if (!game || isModalOpen()) return;
+  const bestHuman = () =>
+    Math.max(0, ...game!.players.filter((p) => p.human && p.alive).map((p) => game!.countriesOf(p.id).length));
+  const losing = bestHuman() < 10;
+  const ok = await confirmModal(
+    question,
+    losing
+      ? `You hold fewer than 10 countries, so this will be logged as a <strong>loss</strong>.`
+      : 'The war will be abandoned.',
+    action,
+    'Keep Sailing',
+  );
+  if (!ok || !game) return;
+  // The AI keeps playing while the dialog is open, so judge the position now.
+  if (bestHuman() < 10) recordScore(DIFFICULTIES[game.settings.difficulty], false);
+  reload();
+}
+$('#m-new').addEventListener('click', () => abandon('Start a New Game?', 'Abandon &amp; Start Over'));
+$('#m-quit').addEventListener('click', () => abandon('Quit This Game?', 'Quit to Port'));
 const soundBtn = $('#m-sound');
 const syncSoundLabel = () => (soundBtn.textContent = isMuted() ? 'Sound: Off' : 'Sound: On');
 syncSoundLabel();
@@ -149,20 +169,24 @@ soundBtn.addEventListener('click', () => {
   syncSoundLabel();
 });
 
+// Informational dialogs from the menu bar; they never replace a prompt the
+// engine is waiting on.
+function infoModal(html: string) {
+  if (isModalOpen()) return null;
+  const m = openModal(`${html}<div class="m-actions"><button class="btn ghost" id="m-close">Close</button></div>`, {
+    dismissable: true,
+  });
+  m.querySelector('#m-close')!.addEventListener('click', closeModal);
+  return m;
+}
+
 $('#m-scores').addEventListener('click', () => {
-  const m = $('#modal');
-  $('#modal-scrim').hidden = false;
-  m.innerHTML = `<h2>Ship's Log</h2><div id="modal-scores"></div>
-    <div class="m-actions"><button class="btn ghost" id="m-close">Close</button></div>`;
-  renderScores($('#modal-scores'));
-  m.querySelector('#m-close')!.addEventListener('click', () => ($('#modal-scrim').hidden = true));
+  if (infoModal(`<h2>Ship's Log</h2><div id="modal-scores"></div>`)) renderScores($('#modal-scores'));
 });
-$('#m-about').addEventListener('click', showAbout);
+$('#m-about').addEventListener('click', () => !isModalOpen() && showAbout());
 initAboutLinks();
 $('#m-help').addEventListener('click', () => {
-  const m = $('#modal');
-  $('#modal-scrim').hidden = false;
-  m.innerHTML = `<h2>How to Play</h2>
+  infoModal(`<h2>How to Play</h2>
     <div class="help-body">
       <p><strong>Object.</strong> Conquer all nine islands.</p>
       <p><strong>Reinforcements.</strong> Each turn you receive your countries ÷ 3 in armies (minimum 2),
@@ -182,9 +206,7 @@ $('#m-help').addEventListener('click', () => {
       Production centers (⚓, light-blue counts) drift between countries and sometimes double the armies
       stationed on them.</p>
       <p><strong>Moving.</strong> End your turn by moving troops once between two adjacent countries, or pass.</p>
-    </div>
-    <div class="m-actions"><button class="btn ghost" id="m-close">Close</button></div>`;
-  m.querySelector('#m-close')!.addEventListener('click', () => ($('#modal-scrim').hidden = true));
+    </div>`);
 });
 
 // ----- card reference -----
@@ -204,17 +226,13 @@ const CARD_REF: { label: string; desc: string; detail?: string }[] = [
 ];
 
 $('#m-cards').addEventListener('click', () => {
-  const m = $('#modal');
-  $('#modal-scrim').hidden = false;
   const rows = CARD_REF.map(
     (c) => `<div class="card-ref-row">
       <span class="card-chip" aria-hidden="true">${c.label}</span>
       <span class="ref-desc">${c.desc}${c.detail ? `<span class="ref-detail">${c.detail}</span>` : ''}</span>
     </div>`,
   ).join('');
-  m.innerHTML = `<h2>Card Reference</h2>
+  infoModal(`<h2>Card Reference</h2>
     <p class="m-note">Capture at least one country on your turn to draw a card (hand limit five).</p>
-    <div class="card-ref">${rows}</div>
-    <div class="m-actions"><button class="btn ghost" id="m-close">Close</button></div>`;
-  m.querySelector('#m-close')!.addEventListener('click', () => ($('#modal-scrim').hidden = true));
+    <div class="card-ref">${rows}</div>`);
 });

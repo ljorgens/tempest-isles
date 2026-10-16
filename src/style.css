@@ -136,6 +136,9 @@ button { font-family: inherit; cursor: pointer; }
 @media (max-width: 420px) {
   .t-rule { letter-spacing: 0.05em; font-size: 0.75rem; }
 }
+@media (max-width: 340px) {
+  .t-rule { letter-spacing: 0; font-size: 0.62rem; }
+}
 
 #title-screen h1 {
   font-family: var(--display);
@@ -330,6 +333,7 @@ table.scores th {
   box-shadow: 0 0 12px rgba(227, 179, 65, 0.35);
 }
 .plaque.dead { opacity: 0.45; filter: grayscale(0.7); }
+button.plaque { font: inherit; color: inherit; text-align: left; cursor: pointer; }
 .plaque.viewable { cursor: pointer; }
 .plaque.viewable:hover {
   border-color: var(--gold);
@@ -363,12 +367,13 @@ table.scores th {
 }
 
 #map-wrap { position: relative; }
+/* Bottom-left, in a row: the one corner of the map that holds open sea at
+   every phone size (bottom-right covered Ember Atoll). */
 .map-zoom {
   position: absolute;
-  right: 0.8rem;
-  bottom: 0.8rem;
-  display: none;
-  flex-direction: column;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  display: flex;
   gap: 0.35rem;
 }
 .map-zoom button {
@@ -382,8 +387,14 @@ table.scores th {
   border-radius: 4px;
   touch-action: manipulation;
 }
-@media (max-width: 760px), (pointer: coarse) {
-  .map-zoom { display: flex; }
+.map-zoom button { cursor: pointer; }
+.map-zoom button:hover { color: var(--gold); border-color: var(--gold); }
+/* On the narrowest phones no corner of the map is open sea, so the buttons
+   get their own strip under the map. */
+@media (max-width: 360px) {
+  #map-wrap { padding-bottom: 2.3rem !important; }
+  .map-zoom { bottom: 0.2rem; }
+  .map-zoom button { width: 1.9rem; height: 1.9rem; font-size: 1rem; }
 }
 
 /* ── map elements ── */
@@ -678,6 +689,8 @@ table.scores th {
 
 [hidden] { display: none !important; }
 
+main { display: contents; } /* landmark only: screens still size against body */
+
 #modal-scrim {
   position: fixed;
   inset: 0;
@@ -688,6 +701,8 @@ table.scores th {
   justify-content: center;
   z-index: 70;
 }
+
+#modal:focus { outline: 4px double rgba(138, 115, 74, 0.55); } /* keep the frame, not a focus ring */
 
 #modal {
   width: min(560px, 92vw);
@@ -887,3 +902,50 @@ table.scores th {
 }
 
 button { touch-action: manipulation; } /* no double-tap zoom delay on buttons */
+
+/* very narrow phones: names over a shortened stat line */
+@media (max-width: 360px) {
+  .plaque { flex-wrap: wrap; row-gap: 0; }
+  .p-stats { flex-basis: 100%; font-size: 0.62rem; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* phones held sideways: give the map the height */
+@media (max-height: 500px) and (orientation: landscape) {
+  .brand { display: none; }
+  #topbar { padding: 0.2rem 0.5rem; }
+  #players { display: flex; flex-wrap: nowrap; gap: 0.3rem; }
+  .plaque { padding: 0.12rem 0.4rem; font-size: 0.72rem; min-width: 0; flex: 1; }
+  .p-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-stats { font-size: 0.62rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #bottombar { grid-template-columns: 1fr auto 1fr; min-height: 0; padding: 0.25rem 0.6rem; gap: 0.4rem; }
+  #info-left, #info-right { font-size: 0.72rem; }
+  #center-stack { gap: 0.15rem; }
+  #prompt { font-size: 0.9rem; }
+  #controls { min-height: 2rem; }
+  #ticker { display: none; } /* the latest event is also in the side boxes and the log */
+  #menubar { gap: 0.1rem 0.2rem; }
+  .mbtn { padding: 0.2rem 0.5rem; font-size: 0.74rem; }
+}
+
+.noscript {
+  max-width: 32rem;
+  margin: 3rem auto;
+  padding: 1rem 1.2rem;
+  text-align: center;
+  color: var(--ink);
+  background: var(--parch-0);
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep the cues the animations carried, as static styles. */
+  .country.pickable { animation: none !important; stroke: #ffe9a8; filter: brightness(1.2); }
+  .country.flashing { animation: none !important; stroke: var(--flash, #8fd0ff); stroke-width: 2.4; }
+  .float-num { animation: none !important; }
+}

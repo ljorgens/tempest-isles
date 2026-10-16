@@ -3,6 +3,7 @@ import type { GameUI } from './engine';
 import type { Renderer } from './render';
 import { AmountResult, CARD_HINT, CARD_LABEL, CardFace, GameState, LogEntry, LogTone, Player } from './types';
 import { sfx } from './sfx';
+import { closeModal, isModalOpen, openModal } from './modal';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
@@ -35,11 +36,12 @@ export class Ui implements GameUI {
     for (const p of this.st.players) {
       const owned = this.st.owner.filter((o) => o === p.id).length;
       const troops = this.st.armies.reduce((s, a, i) => (this.st.owner[i] === p.id ? s + a : s), 0);
-      const div = document.createElement('div');
       // Viewable only for your own hand: always in solo (so you can peek during
       // AI turns too), but in hotseat only the player currently to command —
       // so one human can't read another's hand off the shared screen.
       const viewable = p.human && p.alive && (soloHuman || p.id === this.st.current);
+      // A plaque you can open is a real button, so it works from the keyboard too.
+      const div = document.createElement(viewable ? 'button' : 'div');
       div.className =
         'plaque' +
         (p.id === this.st.current ? ' active' : '') +
@@ -50,6 +52,7 @@ export class Ui implements GameUI {
         <span class="p-name">${p.name}</span>
         <span class="p-stats">${p.alive ? `${owned} ctys · ${troops} men · ${p.cards.length} cards` : 'lost at sea'}</span>`;
       if (viewable) {
+        (div as HTMLButtonElement).type = 'button';
         div.title = 'View your hand';
         div.addEventListener('click', () => this.showHand(p));
       }
@@ -279,16 +282,12 @@ export class Ui implements GameUI {
 
   // ---------- modals ----------
 
-  private modal(html: string): HTMLElement {
-    const scrim = $('#modal-scrim');
-    const modal = $('#modal');
-    modal.innerHTML = html;
-    scrim.hidden = false;
-    return modal;
+  private modal(html: string, dismissable = false): HTMLElement {
+    return openModal(html, { dismissable });
   }
 
   closeModal() {
-    $('#modal-scrim').hidden = true;
+    closeModal();
   }
 
   private cardChip(c: CardFace, idx: number, selectable: boolean): string {
@@ -338,7 +337,7 @@ export class Ui implements GameUI {
 
   /** Read-only peek at a hand, openable any time from the player's plaque. */
   showHand(p: Player) {
-    if (!$('#modal-scrim').hidden) return; // don't clobber a modal that's mid-prompt
+    if (isModalOpen()) return; // don't clobber a modal that's mid-prompt
     const chips = p.cards.length
       ? p.cards.map((c, i) => this.cardChip(c, i, false)).join('')
       : '<p class="m-note">Your hand is empty. Capture a country on your turn to earn a card.</p>';
@@ -346,7 +345,7 @@ export class Ui implements GameUI {
       <h2>${p.name === 'You' ? 'Your Hand' : `${p.name}'s Hand`}</h2>
       <p class="m-note">You hold ${p.cards.length} of 5 cards. Play Bombard from the Cards button during your action phase.</p>
       <div class="card-row">${chips}</div>
-      <div class="m-actions"><button class="btn ghost" id="m-close">Close</button></div>`);
+      <div class="m-actions"><button class="btn ghost" id="m-close">Close</button></div>`, true);
     m.querySelector('#m-close')!.addEventListener('click', () => this.closeModal());
   }
 
@@ -360,7 +359,7 @@ export class Ui implements GameUI {
       <div class="m-actions">
         ${canBomb ? '<button class="btn danger" id="m-bomb">✸ Play Bombard</button>' : ''}
         <button class="btn ghost" id="m-close">Close</button>
-      </div>`);
+      </div>`, true);
     return new Promise((resolve) => {
       m.querySelector('#m-bomb')?.addEventListener('click', () => {
         this.closeModal();

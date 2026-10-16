@@ -3,6 +3,7 @@
 import type { WorldMap } from './geometry';
 import { AmountResult, CardFace, GameState, HAND_LIMIT, LogTone, Player, Settings } from './types';
 import { aiTurn } from './ai';
+import { storeGet, storeSet } from './storage';
 
 export interface GameUI {
   refresh(): void;
@@ -718,7 +719,10 @@ export class Game {
 
   /** End-of-turn fortify: one move between adjacent countries. */
   async humanMove(p: Player): Promise<boolean> {
-    const sources = this.countriesOf(p.id).filter((cid) => this.st.armies[cid] > 1);
+    // Only offer sources with a friendly neighbor to move into.
+    const sources = this.countriesOf(p.id).filter(
+      (cid) => this.st.armies[cid] > 1 && this.world.countries[cid].neighbors.some((n) => this.st.owner[n] === p.id),
+    );
     const from = await this.ui.pickCountry(sources, 'Move troops from which country?', true);
     if (from === null) return false;
     this.ui.arrow(from);
@@ -751,7 +755,7 @@ export interface Scores {
 
 export function loadScores(): Scores {
   try {
-    return JSON.parse(localStorage.getItem(SCORE_KEY) ?? '{}');
+    return JSON.parse(storeGet(SCORE_KEY) ?? '{}');
   } catch {
     return {};
   }
@@ -762,5 +766,5 @@ export function recordScore(difficulty: string, won: boolean) {
   s[difficulty] = s[difficulty] ?? { w: 0, l: 0 };
   if (won) s[difficulty].w++;
   else s[difficulty].l++;
-  localStorage.setItem(SCORE_KEY, JSON.stringify(s));
+  storeSet(SCORE_KEY, JSON.stringify(s));
 }
