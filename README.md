@@ -1,6 +1,6 @@
 # Tempest Isles — A War of Nine Islands
 
-**▶ Play online: https://tempest-isles-ugbl.onrender.com/**
+**▶ Play online: https://tempest-isles.onrender.com/**
 
 A browser-based tribute to **Isle Wars Pro** (Soleau Software, 2002): a
 Risk-style island-conquest game where earthquakes, floods, rebellions and
@@ -84,7 +84,7 @@ npm run playtest      # headless Chrome smoke test (see below)
 fails on any page error. It needs **Google Chrome installed locally** and a
 running game — by default `http://localhost:5173/`, so start `npm run dev`
 first. Pass another URL to test elsewhere:
-`npm run playtest -- https://tempest-isles-ugbl.onrender.com/ shot.png`
+`npm run playtest -- https://tempest-isles.onrender.com/ shot.png`
 (the optional second argument saves a screenshot).
 
 ## Project layout
