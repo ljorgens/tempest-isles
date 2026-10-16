@@ -1,0 +1,9 @@
+/* TEAM */
+Developer: Driftwood Games
+Source: https://github.com/ljorgens/tempest-isles
+
+/* THANKS */
+Soleau Software, for Isle Wars Pro (2002), which inspired this tribute.
+
+/* SITE */
+Built with: TypeScript, Vite
