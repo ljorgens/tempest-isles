@@ -39,7 +39,8 @@ export function showAbout() {
         TIP_URL
           ? `<p><strong>Tips.</strong> Tempest Isles will always be free. If it brought back good memories,
       you can leave a tip to help with hosting and the time I put into it. Tips are completely optional,
-      unlock nothing, and aren't a charitable donation (they're not tax-deductible).</p>`
+      unlock nothing, and aren't a charitable donation (they're not tax-deductible). Tipped by mistake? See the
+      <a href="./terms.html" target="_blank" rel="noopener">terms &amp; refunds</a>.</p>`
           : ''
       }
     </div>
