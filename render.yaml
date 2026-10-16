@@ -22,6 +22,9 @@ services:
       - path: /
         name: Cache-Control
         value: no-cache
+      - path: /manifest.webmanifest
+        name: Content-Type
+        value: application/manifest+json
       # Security headers. The game loads nothing from other sites, so the CSP
       # can be strict (inline styles are used for player colors).
       - path: /*
