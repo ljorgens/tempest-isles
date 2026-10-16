@@ -1,5 +1,6 @@
 /* TEAM */
 Developer: Driftwood Games
+Play: https://tempest-isles.onrender.com
 Source: https://github.com/ljorgens/tempest-isles
 
 /* THANKS */
