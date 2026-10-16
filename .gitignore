@@ -33,3 +33,6 @@ yarn-error.log*
 # Research notes and reports (local only)
 /research_notes/
 /reports/
+
+# Claude Code local settings
+.claude/settings.local.json

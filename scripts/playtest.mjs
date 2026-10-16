@@ -1,5 +1,16 @@
-// Plays a few full human turns headlessly: place, attack, battle, pass.
+// Headless smoke test: plays a few full human turns (place, attack, battle,
+// pass) in a real Chrome and fails on any uncaught page error.
+//
+// Usage:
+//   npm run playtest [-- <url> [screenshot.png]]
+//
+// Needs a local Google Chrome install (playwright-core drives it; no browser
+// download) and a running game at <url> — default http://localhost:5173/, so
+// start `npm run dev` first, or point it at a `npm run preview` / deployed URL.
 import { chromium } from 'playwright-core';
+
+const url = process.argv[2] ?? 'http://localhost:5173/';
+const shotPath = process.argv[3]; // optional final-state screenshot
 
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1380, height: 880 } });
@@ -7,7 +18,7 @@ let errors = 0;
 page.on('pageerror', (e) => { errors++; console.log('PAGE ERROR:', e.message); });
 page.on('dialog', (d) => d.dismiss());
 
-await page.goto('http://localhost:5173/', { waitUntil: 'networkidle' });
+await page.goto(url, { waitUntil: 'networkidle' });
 await page.click('.seg[data-name="speed"] button[data-v="0.45"]');
 await page.click('#btn-sail');
 
@@ -73,6 +84,9 @@ while (actions < 120 && turnsPassed < 3) {
 
 console.log(`done: ${actions} actions, ${attacks} attack clicks, ${turnsPassed} turns passed, ${errors} page errors`);
 console.log('final prompt:', await text('#prompt'));
-await page.screenshot({ path: '/tmp/ti-playtest.png' });
+if (shotPath) {
+  await page.screenshot({ path: shotPath });
+  console.log('screenshot:', shotPath);
+}
 await browser.close();
 process.exit(errors ? 1 : 0);
