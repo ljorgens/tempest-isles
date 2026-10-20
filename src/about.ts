@@ -27,7 +27,12 @@ export function showAbout() {
       <p><strong>Credit.</strong> Tempest Isles is an unofficial, fan-made tribute to
       <em>Isle Wars Pro</em> by William Soleau of Soleau Software. The rules follow the original's
       manual; the code, map, art and sound are all new. This project is not affiliated with or
-      endorsed by Soleau Software. All credit for the game's design goes to them.</p>
+      endorsed by Soleau Software. All credit for the game's design goes to them. If you hold rights
+      to <em>Isle Wars Pro</em> and have any concerns, please email
+      <a href="mailto:driftwoodgames@proton.me">driftwoodgames@proton.me</a> and I'll respond promptly.</p>
+
+      <p><strong>How it was made.</strong> Tempest Isles was built with the help of an AI coding
+      assistant (Claude). It runs entirely in your browser: no server, no accounts.</p>
 
       <p><strong>Free &amp; open source.</strong> The game is free to play, and its code is MIT-licensed.
       Fork it, fix it, add the feature you always wanted. Found a bug, or remember a rule differently?

@@ -14,7 +14,8 @@ corrections and pull requests are all welcome — open an
 
 > Tempest Isles is an unofficial fan tribute. It is not affiliated with or
 > endorsed by Soleau Software; all credit for the original game's design goes
-> to William Soleau and Soleau Software.
+> to William Soleau and Soleau Software. If you hold rights to Isle Wars Pro
+> and have concerns, please email driftwoodgames@proton.me.
 
 ## The game
 
@@ -101,6 +102,14 @@ first. Pass another URL to test elsewhere:
 - `scripts/validate.mjs` — map integrity checks.
 - `scripts/sim.ts` — headless all-AI simulator for stability/balance.
 - `scripts/playtest.mjs` — headless Chrome smoke test.
+
+## How it was made
+
+Tempest Isles was built with the help of an AI coding assistant (Claude);
+the commit history shows where. It's a static site with no backend: the map
+is drawn as SVG from a hand-made grid, the sound is synthesized with WebAudio,
+and the AI captains and headless simulator live in `src/ai.ts` and
+`scripts/sim.ts`.
 
 ## Contributing
 
