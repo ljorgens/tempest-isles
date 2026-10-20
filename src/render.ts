@@ -23,8 +23,11 @@ export class Renderer {
   numEls: SVGTextElement[] = [];
   arrowEl!: SVGGElement;
   fxLayer!: SVGGElement;
+  focusRing!: SVGGElement;
   onCountryClick: (id: number) => void = () => {};
   playerColors: string[] = [];
+  /** The country the keyboard was last on, so focus can return to it. */
+  lastFocused: number | null = null;
 
   constructor(public world: WorldMap) {}
 
@@ -66,7 +69,7 @@ export class Renderer {
     }
 
     // compass rose
-    const rose = el('g', { transform: `translate(${rcx} ${rcy})`, opacity: 0.5 }, svg);
+    const rose = el('g', { transform: `translate(${rcx} ${rcy})`, opacity: 0.5, 'aria-hidden': 'true' }, svg);
     el('circle', { r: 34, fill: 'none', stroke: '#c8b78a', 'stroke-width': 1 }, rose);
     el('circle', { r: 27, fill: 'none', stroke: '#c8b78a', 'stroke-width': 0.5, 'stroke-dasharray': '2 3' }, rose);
     let star = '';
@@ -100,20 +103,64 @@ export class Renderer {
     }
 
     // ----- countries -----
+    // Each country is a button for keyboard and screen-reader play; only the
+    // ones a prompt is waiting on are in the Tab order (see setPickable).
     const countriesG = el('g', { filter: 'url(#landTex)' }, svg);
     for (const c of this.world.countries) {
       const path = el('path', {
         d: c.path,
         class: 'country',
         'data-id': c.id,
+        role: 'button',
+        tabindex: -1,
+        'aria-disabled': 'true',
       }, countriesG);
       const isl = this.world.islands[c.island];
       const tip = el('title', {}, path);
       tip.textContent = `Country ${c.id + 1} — ${isl.name} (+${isl.bonus})`;
       path.addEventListener('click', () => this.onCountryClick(c.id));
+      // A mouse click shouldn't focus the country: that would hijack the
+      // arrow keys and Space from page scrolling.
+      path.addEventListener('mousedown', (e) => e.preventDefault());
       this.countryEls[c.id] = path;
     }
 
+    // Keyboard focus ring: a copy of the focused country's outline drawn above
+    // every country, so neighbors can't cover half of it. Dark under light
+    // reads against any fill and the sea.
+    this.focusRing = el('g', { class: 'focus-ring', visibility: 'hidden', 'pointer-events': 'none', 'aria-hidden': 'true' }, svg);
+    el('path', { class: 'ring-under' }, this.focusRing);
+    el('path', { class: 'ring-over' }, this.focusRing);
+    svg.addEventListener('focusin', (e) => {
+      const id = this.countryIdOf(e.target);
+      if (id === null) return;
+      this.lastFocused = id;
+      if (!(e.target as Element).matches(':focus-visible')) return;
+      for (const p of this.focusRing.children) p.setAttribute('d', this.world.countries[id].path);
+      this.focusRing.setAttribute('visibility', 'visible');
+    });
+    svg.addEventListener('focusout', () => this.focusRing.setAttribute('visibility', 'hidden'));
+
+    // Enter/Space choose the focused country; arrow keys hop to the nearest
+    // pickable country in that direction.
+    const DIRS: Record<string, [number, number]> = {
+      ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+    };
+    svg.addEventListener('keydown', (e) => {
+      const id = this.countryIdOf(e.target);
+      if (id === null || e.altKey || e.ctrlKey || e.metaKey) return;
+      // Outside a prompt the keys keep their usual jobs (scrolling the page).
+      if (!this.countryEls[id].classList.contains('pickable')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        // Also stops the key from re-firing on whatever the next prompt focuses.
+        e.preventDefault();
+        this.onCountryClick(id);
+      } else if (DIRS[e.key]) {
+        e.preventDefault();
+        const next = this.nearestPickable(id, DIRS[e.key]);
+        if (next !== null) this.countryEls[next].focus();
+      }
+    });
     // island name plaques
     const names = el('g', {}, svg);
     for (const isl of this.world.islands) {
@@ -127,7 +174,8 @@ export class Renderer {
     }
 
     // ----- labels -----
-    const labels = el('g', { 'pointer-events': 'none' }, svg);
+    // Hidden from screen readers: each country's own label already says this.
+    const labels = el('g', { 'pointer-events': 'none', 'aria-hidden': 'true' }, svg);
     for (const c of this.world.countries) {
       const [x, y] = c.centroid;
       const num = el('text', { x, y: y - 7.5, class: 'c-num', 'text-anchor': 'middle' }, labels);
@@ -158,14 +206,65 @@ export class Renderer {
       const prod = st.prodCenters.includes(c.id);
       count.classList.toggle('prod', prod);
       this.numEls[c.id].textContent = prod ? `⚓${c.id + 1}` : String(c.id + 1);
+      // Accessible name, e.g. "Country 5, Ember Atoll, yours, 5 armies".
+      const owner = st.players[st.owner[c.id]];
+      const n = st.armies[c.id];
+      pEl.setAttribute(
+        'aria-label',
+        `Country ${c.id + 1}, ${this.world.islands[c.island].name}, ` +
+          `${owner?.name === 'You' ? 'yours' : `held by ${owner?.name ?? 'no one'}`}, ` +
+          `${n} ${n === 1 ? 'army' : 'armies'}${prod ? ', production center' : ''}`,
+      );
     }
   }
 
   setPickable(ids: number[]) {
     const set = new Set(ids);
     this.world.countries.forEach((c) => {
-      this.countryEls[c.id].classList.toggle('pickable', set.has(c.id));
+      const on = set.has(c.id);
+      const pEl = this.countryEls[c.id];
+      pEl.classList.toggle('pickable', on);
+      // Off-prompt countries stay focusable by script (-1) so focus isn't
+      // dropped to the page when a pick resolves.
+      pEl.setAttribute('tabindex', on ? '0' : '-1');
+      pEl.setAttribute('aria-disabled', String(!on));
     });
+  }
+
+  /** Where keyboard focus belongs for the current prompt: the focused country
+   *  if it is still pickable, else the last one visited, else the first. */
+  pickTarget(): SVGPathElement | undefined {
+    const ok = (e?: SVGPathElement) => e?.classList.contains('pickable');
+    const active = this.countryEls.find((e) => e === document.activeElement);
+    if (ok(active)) return active;
+    const last = this.lastFocused === null ? undefined : this.countryEls[this.lastFocused];
+    if (ok(last)) return last;
+    return this.countryEls.find(ok);
+  }
+
+  private countryIdOf(t: EventTarget | null): number | null {
+    return t instanceof SVGPathElement && t.classList.contains('country') ? Number(t.dataset.id) : null;
+  }
+
+  /** The pickable country closest to `from` in direction `d`, favoring ones
+   *  straight ahead over ones off to the side. */
+  private nearestPickable(from: number, [dx, dy]: [number, number]): number | null {
+    const [x0, y0] = this.world.countries[from].centroid;
+    let best: number | null = null;
+    let bestScore = Infinity;
+    for (const c of this.world.countries) {
+      if (c.id === from || !this.countryEls[c.id].classList.contains('pickable')) continue;
+      const vx = c.centroid[0] - x0;
+      const vy = c.centroid[1] - y0;
+      const along = vx * dx + vy * dy;
+      if (along <= 0) continue;
+      const score = along + 2 * Math.abs(vx * dy - vy * dx);
+      if (score < bestScore) {
+        bestScore = score;
+        best = c.id;
+      }
+    }
+    return best;
   }
 
   arrow(id: number | null) {

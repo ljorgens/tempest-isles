@@ -12,10 +12,48 @@ export class Ui implements GameUI {
   speed = 1;
   private clickResolver: ((id: number) => void) | null = null;
   private stopHandler: (() => void) | null = null;
+  /** The open prompt's Cancel action, also bound to Escape. */
+  private cancelHandler: (() => void) | null = null;
+  /** True while the player is driving by keyboard; only then do new prompts
+   *  move focus, so mouse and touch play never sees a focus jump or pan. */
+  private keyboard = false;
 
   constructor(public renderer: Renderer) {
     renderer.onCountryClick = (id) => this.clickResolver?.(id);
     $('#btn-stop').addEventListener('click', () => this.stopHandler?.());
+    document.addEventListener('keydown', (e) => {
+      if (!['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) this.keyboard = true;
+      // Escape belongs to an open dialog first (see modal.ts).
+      if (e.key !== 'Escape' || !this.cancelHandler || isModalOpen()) return;
+      if ((e.target as Element | null)?.closest?.('#modal-scrim')) return;
+      e.preventDefault();
+      this.cancelHandler();
+    });
+    document.addEventListener('pointerdown', () => (this.keyboard = false), true);
+    // A held Enter/Space must not chain through prompts now that each new
+    // prompt takes focus: ignore auto-repeats, and a Space released on a
+    // control it wasn't pressed on (buttons activate on Space keyup).
+    let pressedOn: EventTarget | null = null;
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.repeat) {
+        e.preventDefault();
+        e.stopPropagation();
+      } else pressedOn = e.target;
+    }, true);
+    document.addEventListener('keyup', (e) => {
+      if (e.key === ' ' && e.target !== pressedOn) e.preventDefault();
+      if (e.key === 'Enter' || e.key === ' ') pressedOn = null;
+    }, true);
+  }
+
+  /** Move keyboard focus to a new prompt's control — unless a dialog is open
+   *  or the player has focus somewhere else on purpose (menu bar, log). */
+  private claimFocus(target: HTMLElement | SVGElement | undefined) {
+    if (!target || !this.keyboard || isModalOpen()) return;
+    const a = document.activeElement;
+    const idle = !a || a === document.body || a.getClientRects().length === 0;
+    if (idle || a.closest('#map, #controls')) target.focus();
   }
 
   bind(st: GameState) {
@@ -118,6 +156,7 @@ export class Ui implements GameUI {
         });
         bar.appendChild(b);
       }
+      this.claimFocus(bar.querySelector('button') ?? undefined);
     });
   }
 
@@ -135,6 +174,7 @@ export class Ui implements GameUI {
     return new Promise((resolve) => {
       const done = (val: number | null) => {
         this.clickResolver = null;
+        this.cancelHandler = null;
         this.renderer.setPickable([]);
         bar.innerHTML = '';
         resolve(val);
@@ -148,7 +188,9 @@ export class Ui implements GameUI {
         b.textContent = 'Cancel';
         b.addEventListener('click', () => done(null));
         bar.appendChild(b);
+        this.cancelHandler = () => done(null);
       }
+      this.claimFocus(this.renderer.pickTarget());
     });
   }
 
@@ -173,6 +215,7 @@ export class Ui implements GameUI {
     return new Promise((resolve) => {
       const done = (r: AmountResult) => {
         this.clickResolver = null;
+        this.cancelHandler = null;
         this.renderer.setPickable([]);
         bar.innerHTML = '';
         resolve(r);
@@ -185,6 +228,7 @@ export class Ui implements GameUI {
       }
       const readout = document.createElement('span');
       readout.className = 'amt-readout';
+      readout.setAttribute('aria-live', 'polite');
       const update = () => (readout.textContent = `${value} / ${opts.max}`);
       const mk = (label: string, fn: () => void, cls = 'btn step') => {
         const b = document.createElement('button');
@@ -194,15 +238,19 @@ export class Ui implements GameUI {
         bar.appendChild(b);
         return b;
       };
-      mk('−10', () => { value = Math.max(opts.min, value - 10); update(); });
-      mk('−1', () => { value = Math.max(opts.min, value - 1); update(); });
+      mk('−10', () => { value = Math.max(opts.min, value - 10); update(); }).ariaLabel = 'Minus 10';
+      mk('−1', () => { value = Math.max(opts.min, value - 1); update(); }).ariaLabel = 'Minus 1';
       bar.appendChild(readout);
-      mk('+1', () => { value = Math.min(opts.max, value + 1); update(); });
-      mk('+10', () => { value = Math.min(opts.max, value + 10); update(); });
+      mk('+1', () => { value = Math.min(opts.max, value + 1); update(); }).ariaLabel = 'Plus 1';
+      mk('+10', () => { value = Math.min(opts.max, value + 10); update(); }).ariaLabel = 'Plus 10';
       mk('All', () => { value = opts.max; update(); });
-      mk('✓ Confirm', () => done({ kind: 'amount', value }), 'btn primary');
-      if (opts.cancelable) mk('Cancel', () => done({ kind: 'cancel' }), 'btn ghost');
+      const confirm = mk('✓ Confirm', () => done({ kind: 'amount', value }), 'btn primary');
+      if (opts.cancelable) {
+        mk('Cancel', () => done({ kind: 'cancel' }), 'btn ghost');
+        this.cancelHandler = () => done({ kind: 'cancel' });
+      }
       update();
+      this.claimFocus(confirm);
     });
   }
 

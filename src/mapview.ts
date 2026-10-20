@@ -135,6 +135,20 @@ export function initMapView(svg: SVGSVGElement, W: number, H: number) {
     { passive: false },
   );
 
+  // A country reached by keyboard while panned out of view is brought into it.
+  svg.addEventListener('focusin', (e) => {
+    const t = e.target;
+    if (!(t instanceof SVGGraphicsElement) || !t.matches(':focus-visible')) return;
+    const b = t.getBBox();
+    const { w, h } = view();
+    const x0 = cx - w / 2;
+    const y0 = cy - h / 2;
+    if (b.x >= x0 && b.y >= y0 && b.x + b.width <= x0 + w && b.y + b.height <= y0 + h) return;
+    cx = b.x + b.width / 2;
+    cy = b.y + b.height / 2;
+    apply();
+  });
+
   // ----- zoom buttons -----
   const ctl = document.createElement('div');
   ctl.className = 'map-zoom';

@@ -206,6 +206,8 @@ $('#m-help').addEventListener('click', () => {
       Production centers (⚓, light-blue counts) drift between countries and sometimes double the armies
       stationed on them.</p>
       <p><strong>Moving.</strong> End your turn by moving troops once between two adjacent countries, or pass.</p>
+      <p><strong>Keyboard.</strong> Tab or the arrow keys move between the countries you can pick; Enter or
+      Space chooses one, and Escape cancels the pick. Every button works with Tab and Enter.</p>
     </div>`);
 });
 
