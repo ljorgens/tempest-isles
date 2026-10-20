@@ -193,8 +193,8 @@ $('#m-help').addEventListener('click', () => {
       plus a bonus for every island you wholly control.</p>
       <p><strong>Attacking.</strong> You may attack an adjacent country (or across a sea lane) only if your
       stack is <em>equal or greater</em> than the defender's. Each clash costs the loser one army — ties favor
-      the defender. <em>Beware:</em> if your attacking force is ever worn down to a single army, you forfeit
-      your turn <em>and the country itself</em> to the defender. Use <strong>Auto</strong> to roll
+      the defender. <em>Beware:</em> an assault that bleeds down to one army fails badly: your turn ends
+      on the spot <em>and the defender takes your country</em>. Use <strong>Auto</strong> to roll
       repeatedly without clicking — it stops the moment the battle resolves or your force is worn
       down to 2 (where the next loss would cost you the country), handing the clash back to you.</p>
       <p><strong>Conquest.</strong> Reduce a defender to zero and march at least one army in. Capture any
