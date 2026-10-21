@@ -8,13 +8,13 @@ featured there.
 
 ## Get it running
 
-You need [Node.js](https://nodejs.org) 22 or newer.
+You need [Node.js](https://nodejs.org) 20 or newer.
 
 ```sh
 git clone https://github.com/ljorgens/tempest-isles.git my-mod
 cd my-mod
 npm install
-npm run dev        # opens the game at http://localhost:5173 and reloads as you edit
+npm run dev        # serves the game at http://localhost:5173 and reloads as you edit
 ```
 
 Before sharing, run the same checks the project's CI runs:
@@ -22,7 +22,7 @@ Before sharing, run the same checks the project's CI runs:
 ```sh
 npm run typecheck  # TypeScript errors
 npm run validate   # the map grid is well formed
-npm run sim -- 50  # 50 all-AI games per difficulty: catches games that never end
+npm run sim -- 50  # 50 all-AI games per difficulty: watch for "HIT TURN CAP" (a game that never ends)
 npm run build      # the finished site, in dist/
 ```
 
@@ -55,24 +55,38 @@ so you only edit text:
 - To add or move a sea lane, edit `LANES`. Each lane joins two coastal countries on different islands.
 
 Run `npm run validate` after each change. It checks that every country is in one piece and that
-islands and lanes match the grid. The validator and `ALPHABET` assume exactly 46 countries. A map with
-more or fewer means updating `ALPHABET` in `src/mapdata.ts` and the count in `scripts/validate.mjs`.
+islands and lanes match the grid.
+
+A map with a different number of countries or islands needs a few more edits:
+
+- `ALPHABET` in `src/mapdata.ts` must list exactly one symbol per country.
+- `scripts/validate.mjs` expects 46 countries in three places; search it for `46`.
+- The words "nine islands" and "Forty-six countries" appear in `index.html`, the help text in
+  `src/main.ts`, the victory text in `src/ui.ts` and `public/manifest.webmanifest`.
 
 ## Before you share it
 
-- **Give it its own name.** Use something like "Tempest Isles: Archipelago" or a brand-new title,
-  and say it's based on Tempest Isles. Change the title in `index.html` and the About text in
-  `src/about.ts`.
+- **Give it its own name.** A brand-new title, or a subtitle like "Tempest Isles: Archipelago", is
+  fine, as long as it says it's based on Tempest Isles. Change it in `index.html`,
+  `public/manifest.webmanifest` and `public/og.png` (the image shown when the link is shared).
 - **Keep the credits.** The MIT License asks you to keep the `LICENSE` file and its copyright line. Keep
   the credit to the original *Isle Wars Pro* by Soleau Software too. Don't present your version as
   official or as made by Driftwood Games or Soleau Software.
 - **Only use material you have the right to use.** Don't add art, sound, text or files from the
-  original *Isle Wars Pro* or any other commercial game.
-- **Swap out our contact and tip details.** Set `TIP_URL` in `src/about.ts` to `''` (this hides the
-  tip button) or to your own link. Update `SOURCE_URL` to your repository. Replace or remove
-  `public/privacy.html` and `public/terms.html`, because they describe our site and give our email.
-  Change the `tempest-isles.onrender.com` addresses in `index.html`, `public/robots.txt` and
-  `public/sitemap.xml`.
+  original *Isle Wars Pro* or any other commercial game, and don't use "Isle Wars" in your mod's name.
+- **Swap out our details.** Several files speak as Driftwood Games or point to our site:
+  - `src/about.ts`: set `TIP_URL` to `''` (this hides the tip button) or to your own link, set
+    `SOURCE_URL` to your repository, and rewrite the About panel. It has our story, our signature and
+    our email address.
+  - `public/privacy.html` and `public/terms.html` describe our site and give our email. Rewrite them, or
+    delete them and remove the links to them in `index.html` and `src/about.ts`.
+  - Delete `public/presskit.html` and `public/press/` (our press kit), and update or delete
+    `public/humans.txt`.
+  - Change the `tempest-isles.onrender.com` addresses in `index.html`, `public/robots.txt` and
+    `public/sitemap.xml`.
+- **Saved scores.** Scores and the sound setting are saved in the browser under `tempest-isles-scores`
+  (`src/engine.ts`) and `tempest-isles-muted` (`src/sfx.ts`). If you host several versions on one
+  site, such as one github.io account, rename the keys so they don't share scores.
 - **Keep it free and clean.** To be featured, a mod must be free to play, with no ads, no trackers,
   no sign-up and nothing to download.
 
