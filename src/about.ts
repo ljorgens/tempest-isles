@@ -22,7 +22,7 @@ export function showAbout() {
       Years later I went looking for it and found it hard to get running on a modern computer.
       So I rebuilt it from scratch to play it again, and I'm sharing it so anyone who remembers it,
       or never got the chance, can play the way I used to.
-      <span class="about-sig">— Driftwood Games</span></p>
+      <span class="about-sig">— <a href="https://driftwood-games.onrender.com/" target="_blank" rel="noopener">Driftwood Games</a></span></p>
 
       <p><strong>Credit.</strong> Tempest Isles is an unofficial, fan-made tribute to
       <em>Isle Wars Pro</em> by William Soleau of Soleau Software. The rules follow the original's

@@ -801,6 +801,9 @@ main { display: contents; } /* landmark only: screens still size against body */
   font-style: italic;
   margin-top: 0.4rem;
 }
+.about-sig a {
+  color: inherit;
+}
 .m-actions a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 
 #modal-scores table.scores { margin-bottom: 1rem; }

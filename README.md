@@ -125,7 +125,7 @@ run `npm run build` (typecheck + bundle), `npm run validate` (map integrity) and
 `npm run sim -- 50` (headless AI games, catches hangs and rule violations) —
 CI runs the same checks on every pull request. Remember a rule differently
 from the original? Open a **Rule correction** issue, ideally quoting the
-manual.
+manual. See [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
 
 ## License
 

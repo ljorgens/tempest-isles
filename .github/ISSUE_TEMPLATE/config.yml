@@ -1,1 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
+contact_links:
+  - name: Get your mod listed
+    url: https://driftwood-games.onrender.com/community.html
+    about: Made your own version? Email it in to be featured on the community page.
+  - name: Modding guide
+    url: https://github.com/ljorgens/tempest-isles/blob/main/MODDING.md
+    about: Where the map, rules, cards, disasters and AI live, and how to host your version.
+  - name: Private question, refund or rights concern
+    url: https://tempest-isles.onrender.com/terms.html#contact
+    about: Email driftwoodgames@proton.me (issues here are public).

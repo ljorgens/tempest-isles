@@ -6,9 +6,19 @@ on:
   pull_request:
     branches: [main]
 
+# Read-only token, even for pull requests from forks.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    # A change that makes games never end should fail fast, not run for hours.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
