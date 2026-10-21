@@ -111,6 +111,13 @@ is drawn as SVG from a hand-made grid, the sound is synthesized with WebAudio,
 and the AI captains and headless simulator live in `src/ai.ts` and
 `scripts/sim.ts`.
 
+## Make your own version
+
+Want a different map, new rules or a meaner AI? Copy the game and make it yours. See
+**[MODDING.md](MODDING.md)** for where everything lives, how to host your version for free, and how
+to send it in. The best community versions are featured on the
+[Driftwood Games community page](https://driftwood-games.onrender.com/community.html).
+
 ## Contributing
 
 Fork the repo, make your change, and open a pull request. Before submitting,
