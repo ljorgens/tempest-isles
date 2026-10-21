@@ -2,9 +2,8 @@
 
 Tempest Isles is open source under the MIT License, so you're welcome to copy it, change it and share
 your own version: a new map, new rules, new disasters, a tougher AI, anything. If you make something
-you're proud of, send it in through the form on the
-[Driftwood Games community page](https://driftwood-games.onrender.com/community.html). The best ones get
-featured there.
+you're proud of, email the link to driftwoodgames@proton.me. The best ones get featured on the
+[Driftwood Games community page](https://driftwood-games.onrender.com/community.html).
 
 ## Get it running
 
@@ -104,9 +103,8 @@ The game is a static site, so any free static host works.
 
 ## Sending it in
 
-Share the link through the
-[community page](https://driftwood-games.onrender.com/community.html). Tell us what you changed and,
-if you like, a name to credit you by. We'll play it, and the best ones get featured with a link to
-yours.
+Email the link to driftwoodgames@proton.me. Say what you changed and, if you like, give a name to
+credit you by. We'll play it, and the best ones get featured on the
+[community page](https://driftwood-games.onrender.com/community.html) with a link to yours.
 
 Fixes and improvements to Tempest Isles itself are welcome as pull requests here too.
